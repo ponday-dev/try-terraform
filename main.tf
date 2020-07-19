@@ -40,7 +40,7 @@ resource "aws_cloudfront_distribution" "cf" {
 
     origin {
         domain_name = aws_s3_bucket.public.bucket_regional_domain_name
-        origin_id = var.bucket_name
+        origin_id = aws_s3_bucket.public.id
 
         s3_origin_config {
             origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
@@ -60,7 +60,7 @@ resource "aws_cloudfront_distribution" "cf" {
             }
         }
 
-        viewer_protocol_policy = "allow-all"
+        viewer_protocol_policy = "redirect-to-https"
         min_ttl = 0
         default_ttl = 300
         max_ttl = 86400
@@ -79,9 +79,10 @@ resource "aws_cloudfront_distribution" "cf" {
 }
 
 resource "aws_s3_bucket_object" "index" {
-    bucket = var.bucket_name
+    bucket = aws_s3_bucket.public.id
     key = "index.html"
-    source = file("s3/index.html")
+    source = "s3/index.html"
+    content_type = "text/html"
     etag = filemd5("s3/index.html")
 }
 
